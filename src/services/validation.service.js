@@ -4,11 +4,11 @@ const Joi = require('joi');
 
 // Define the Joi schema for validating customer data
 const customerSchema = Joi.object({
-    name: Joi.string().trim().required().messages({
+    full_name: Joi.string().trim().required().messages({
         'string.empty': 'Full name is required',
     }),
     email: Joi.string().email().lowercase().required().messages({
-        'string.email': 'Email must be a valid email address',
+        'string.email': 'Valid email format is required',
     }),
     date_of_birth: Joi.date().iso().max('now').required().messages({
         'date.max': 'Date of birth must be in the past',
