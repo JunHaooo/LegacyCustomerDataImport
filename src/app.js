@@ -4,6 +4,7 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
 const logger = require('./utils/logger');
+const importRoutes = require('./routes/import.routes');
 
 const app = express();
 
@@ -22,5 +23,8 @@ app.listen(PORT, () => {
 app.get('/', (req, res) => {
     res.status(200).json({ status: 'UP' });
 });
+
+// Route for handling CSV imports
+app.use('/api/imports', importRoutes);
 
 module.exports = app; 

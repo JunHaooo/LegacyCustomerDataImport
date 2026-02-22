@@ -1,3 +1,5 @@
+// This worker processes CSV import jobs from the 'importQueue'. It reads the uploaded CSV file, validates each record, stores valid records in the database, and updates the ImportJob document with the results. It also handles errors gracefully and logs the outcomes for monitoring and debugging purposes.
+
 const { Worker } = require('bullmq');
 const fs = require('fs');
 const { parse } = require('csv-parse');
