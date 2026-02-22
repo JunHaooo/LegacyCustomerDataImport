@@ -1,0 +1,19 @@
+// Set up MongoDB connection using Mongoose with structured logging
+
+const mongoose = require('mongoose');
+const logger = require('../utils/logger');
+
+const connectDB = async () => {
+    try {
+        const conn = await mongoose.connect(process.env.MONGO_URI);
+
+        // Structured logging for successful connection
+        logger.info(`MongoDB Connected: ${conn.connection.host}`);
+    } catch (error) {
+        // Structured logging for connection errors
+        logger.error(`Error connecting to MongoDB: ${error.message}`);
+        process.exit(1); // Exit the process with failure
+    }
+};
+
+module.exports = connectDB;

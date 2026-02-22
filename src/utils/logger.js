@@ -1,3 +1,5 @@
+// Use winston for logging
+
 const winston = require('winston');
 const path = require('path');
 
@@ -12,9 +14,10 @@ const levels = {
 
 // Choose log level based on environment
 const level = () => {
-    const env = process.env.NODE_ENV || 'development';
-    return env === 'development' ? 'debug' : 'warn';
-}
+  const env = process.env.NODE_ENV || 'development'; // Default to 'development' if NODE_ENV is not set
+  const isDevelopment = env === 'development'; // Check if the environment is development
+  return isDevelopment ? 'debug' : 'warn'; // True --> debug, False --> warn
+};
 
 // Define log format
 const format = winston.format.combine(
