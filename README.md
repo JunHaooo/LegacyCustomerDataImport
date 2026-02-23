@@ -1,1 +1,107 @@
-# LegacyCustomerDataImport
+# Legacy Customer Data Import System
+A production-grade, resilient backend system designed to handle large-scale CSV customer data migrations. Built with Node.js, Express, and MongoDB, utilizing BullMQ (Redis) for robust asynchronous background processing.
+
+## Table of Contents
+- [Quick Start](#-quick-start)
+- [Prerequisites](#-prerequisites)
+- [API Usage Examples](#-api-usage-examples)
+- [Testing](#-testing)
+- [Project Structure](#-project-structure)
+- [Design Decisions](#-design-decisions)
+- [Assumptions & Limitations](#-assumptions--limitations)
+- [Future Improvements](#-future-improvements)
+
+## Quick Start
+The entire stack is containerized for a seamless setup.
+
+Clone the repository:
+
+```bash
+git clone https://github.com/JunHaooo/LegacyCustomerDataImport.git
+cd LegacyCustomerDataImport
+```
+
+Set up environment variables:
+
+```bash
+cp .env.example .env
+```
+
+Launch the application:
+
+```bash
+docker-compose up --build
+```
+
+The API will be available at http://localhost:3000.
+
+## Prerequisites
+- Docker (v20.10+)
+- Docker Compose (v2.0+)
+
+## API Usage Examples
+### 1. Upload CSV Import
+`POST /api/imports`
+
+Uploads the CSV file and initiates an asynchronous background job.
+
+```bash
+curl -X POST -F "file=@./test.csv" http://localhost:3000/api/imports
+```
+
+Response (202 Accepted):
+
+```json
+{
+  "message": "File uploaded and processing started",
+  "jobId": "65d8f..."
+}
+```
+
+### 2. Check Import Status & Results
+`GET /api/imports/:id`
+
+Retrieves job metadata, including success/failure counts and specific error messages for rejected rows.
+
+```bash
+curl http://localhost:3000/api/imports/65d8f...
+```
+
+### 3. Customer Management (CRUD)
+- List Customers (Paginated): `GET /api/customers?page=1&limit=10`
+- Get Customer by ID: `GET /api/customers/:id`
+- Update Customer: `PUT /api/customers/:id` (Requires full validation)
+- Delete Customer: `DELETE /api/customers/:id`
+
+## Testing
+The project includes unit tests for business logic and integration tests for API endpoints using Jest and Supertest.
+
+Run tests with a single command:
+
+```bash
+npm test
+```
+
+Note: Tests utilize Jest mocks for BullMQ/Redis to ensure isolated, stable execution without environment dependencies.
+
+## Project Structure
+```plaintext
+├── src/
+│   ├── config/         # Database and Queue configurations
+│   ├── controllers/    # Business logic (Modular handlers)
+│   ├── models/         # Mongoose schemas & indexing
+│   ├── routes/         # Express API route definitions
+│   ├── services/       # Validation (Joi) and utility services
+│   ├── workers/        # BullMQ background worker logic
+│   └── app.js          # Express application entry point
+├── tests/              # Unit and Integration test suites
+├── docker-compose.yml  # Container orchestration
+└── .env.example        # Environment template
+```
+
+## Design Decisions
+- **Asynchronous Processing (BullMQ/Redis):** To ensure high availability and scalability, CSV parsing is handled out-of-process. This prevents long-running file operations from blocking the API's main thread.
+- **Modular MVC Pattern:** Logic is strictly separated into Controllers, Services, and Routes. This enhances maintainability and allows for cleaner unit testing of individual components.
+- **Database Integrity:** Implemented Mongoose Unique Indexes on the email field. This provides a second layer of protection against duplicate records beyond application-level checks.
+- **Streaming CSV Parser:** Large files are processed using Node.js streams rather than being loaded entirely into memory, allowing the system to handle multi-gigabyte uploads efficiently.
+- **Structured Logging:** Utilizes a custom logger to track import job lifecycles, validation failures, and system errors in a consistent JSON-like format.
