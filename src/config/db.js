@@ -5,7 +5,7 @@ const logger = require('../utils/logger');
 
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI);
+        const conn = await mongoose.connect(process.env.MONGODB_URI);
 
         // Structured logging for successful connection
         logger.info(`MongoDB Connected: ${conn.connection.host}`);

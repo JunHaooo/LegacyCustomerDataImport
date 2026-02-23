@@ -34,7 +34,7 @@ const worker = new Worker('importQueue', async (job) => {
         importJob.rejectedRecords.push({
           row: rowCount,
           data: record,
-          errors: error.details.map(d => d.message)
+          validationErrors: error.details.map(d => d.message)
         });
       } else {
         try {
@@ -45,7 +45,7 @@ const worker = new Worker('importQueue', async (job) => {
           importJob.rejectedRecords.push({
             row: rowCount,
             data: record,
-            errors: [dbError.code === 11000 ? 'Email already exists' : dbError.message]
+            validationErrors: [dbError.code === 11000 ? 'Email already exists' : dbError.message]
           });
         }
       }

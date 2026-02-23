@@ -14,7 +14,7 @@ status: {
   rejectedRecords: [{
     row: Number,
     data: Object,
-    errors: [String] // List of validation errors for this record
+    validationErrors: [String] // List of validation errors for this record
   }],
   startedAt: { type: Date },
   completedAt: { type: Date }
