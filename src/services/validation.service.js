@@ -2,6 +2,16 @@
 
 const Joi = require('joi');
 
+// Helper to check for valid IANA timezone
+const isValidTimeZone = (value, helpers) => {
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: value });
+    return value;
+  } catch (err) {
+    return helpers.error('any.invalid');
+  }
+};
+
 // Define the Joi schema for validating customer data
 const customerSchema = Joi.object({
     full_name: Joi.string().trim().required().messages({
@@ -14,8 +24,8 @@ const customerSchema = Joi.object({
         'date.max': 'Date of birth must be in the past',
         'date.base': 'Date of birth must be a valid date',
     }),
-    timezone: Joi.string().required().messages({
-        'string.base': 'Timezone must be a string',
+    timezone: Joi.string().custom(isValidTimeZone).required().messages({
+        'any.invalid': 'Invalid IANA timezone identifier',
         'string.empty': 'Timezone is required',
     }),
 });
@@ -31,4 +41,4 @@ const validateCustomer = (data) => {
   return customerSchema.validate(data, { abortEarly: false });
 };
 
-module.exports = { validateCustomer }; // Export the validation function for use in the import controller
+module.exports = { validateCustomer }; // Export the validation function for use in the customer controller
