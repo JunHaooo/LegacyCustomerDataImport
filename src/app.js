@@ -1,6 +1,7 @@
 //Main application file for the Express server
 
 require('dotenv').config();
+require('./workers/import.worker'); // Start the import worker
 const express = require('express');
 const connectDB = require('./config/db');
 const logger = require('./utils/logger');

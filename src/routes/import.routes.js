@@ -58,4 +58,19 @@ router.post('/', upload.single('file'), async (req, res) => {
   }
 });
 
+router.get('/:id', async (req, res) => {
+  try {
+    const ImportJob = require('../models/ImportJob'); // Ensure model is imported
+    const job = await ImportJob.findById(req.params.id);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    res.json(job);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error fetching job' });
+  }
+});
+
 module.exports = router;

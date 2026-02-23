@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 
 const customerSchema = new mongoose.Schema({
-    name: {
+    full_name: {
         type: String,
         required: [true, 'Full name is required'],
         trim: true,
