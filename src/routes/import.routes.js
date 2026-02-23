@@ -1,3 +1,5 @@
+//Handles file uploads and initiates background processing jobs for CSV imports.
+
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -58,10 +60,11 @@ router.post('/', upload.single('file'), async (req, res) => {
   }
 });
 
+// GET /api/imports/:id - Fetch job status and results
 router.get('/:id', async (req, res) => {
   try {
     const ImportJob = require('../models/ImportJob'); // Ensure model is imported
-    const job = await ImportJob.findById(req.params.id);
+    const job = await ImportJob.findById(req.params.id); // Fetch job status from MongoDB
 
     if (!job) {
       return res.status(404).json({ error: 'Job not found' });
