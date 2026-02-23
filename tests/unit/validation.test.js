@@ -38,4 +38,28 @@ describe('Customer Validation Service', () => {
     expect(error).toBeDefined();
     expect(error.details[0].message).toContain('Date of birth must be in the past');
   });
+
+
+  test('should fail if the timezone is not a valid IANA identifier', () => {
+    const invalidData = {
+      full_name: 'John Doe',
+      email: 'john@example.com',
+      date_of_birth: '1990-01-01',
+      timezone: 'Not/A_Real_Place' // Invalid
+    };
+    const { error } = validateCustomer(invalidData);
+    expect(error).toBeDefined();
+    expect(error.details[0].message).toContain('Invalid IANA timezone identifier');
+  });
+
+  test('should pass if the timezone is a valid IANA identifier', () => {
+    const validData = {
+      full_name: 'Jane Smith',
+      email: 'jane@example.com',
+      date_of_birth: '1985-08-22',
+      timezone: 'Europe/London' // Valid
+    };
+    const { error } = validateCustomer(validData);
+    expect(error).toBeUndefined();
+  });
 });
