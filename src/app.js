@@ -1,7 +1,9 @@
 //Main application file for the Express server
-
 require('dotenv').config();
-require('./workers/import.worker'); // Start the import worker
+
+// Start the import worker to process CSV files in the background
+require('./workers/import.worker'); 
+
 const express = require('express');
 const connectDB = require('./config/db');
 const logger = require('./utils/logger');
@@ -14,6 +16,8 @@ const app = express();
 connectDB();
 
 // Middleware to parse JSON bodies
+app.use(express.json());
+
 const PORT = process.env.PORT || 3000;
 
 // Health check endpoint
