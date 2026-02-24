@@ -1,6 +1,6 @@
 // Tests for the validation service to ensure that customer data is correctly validated before processing
 
-const { validateCustomer } = require('../../src/services/validation.service');
+const { validateCustomer, validatePartialCustomer } = require('../../src/services/validation.service');
 
 describe('Customer Validation Service', () => {
   
@@ -58,5 +58,39 @@ describe('Customer Validation Service', () => {
     expect(error.details[0].message).toContain('Invalid IANA timezone identifier');
   });
 
+  // Test case for partial update validation
+  test('should validate a partial update with only one field', () => {
+    const partialData = { full_name: 'Jun Hao Updated' };
+    
+    // Using your partial validation function
+    const { error } = validatePartialCustomer(partialData);
+    expect(error).toBeUndefined();
+  });
+
+  // Test case for validating that email is still validated in a PATCH request
+  test('should fail partial update if email is malformed', () => {
+    const invalidPartial = { email: 'wrong-email-format' };
+
+    const { error } = validatePartialCustomer(invalidPartial);
+    expect(error).toBeDefined();
+    expect(error.details[0].message).toContain('Valid email format is required');
+  });
+
+  // Test case for validating that at least one field is required in a PATCH request
+  test('should fail partial update if timezone is invalid', () => {
+    const invalidTimezone = { timezone: 'Fake/City' };
+
+    const { error } = validatePartialCustomer(invalidTimezone);
+    expect(error).toBeDefined();
+    expect(error.details[0].message).toContain('Invalid IANA timezone identifier');
+  });
   
+  // Test case for validating that unknown fields are not allowed
+  test('should fail if an unknown field is provided', () => {
+    const unknownField = { hacker_score: 9001 };
+
+    const { error } = validatePartialCustomer(unknownField);
+    expect(error).toBeDefined();
+    // Joi by default doesn't allow unknown keys unless .unknown() is set
+  });
 });

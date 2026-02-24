@@ -56,12 +56,23 @@ exports.deleteCustomer = async (req, res) => {
 
 // Patch (partial update) a customer by ID
 exports.patchCustomer = async (req, res) => {
-  const { error, value } = validatePartialCustomer(req.body);
-  if (error) return res.status(400).json({ errors: error.details.map(d => d.message) });
-  
-  // { new: true } returns the updated document, { runValidators: true } ensures Mongoose-level checks
-  const customer = await Customer.findByIdAndUpdate(req.params.id, value, { new: true, runValidators: true });
-  if (!customer) return res.status(404).json({ error: 'Customer not found' });
-  
-  res.json(customer);
+  try {
+    const { error, value } = validatePartialCustomer(req.body);
+    if (error) {
+        return res.status(400).json({ errors: error.details.map(d => d.message) });
+    }
+
+    const customer = await Customer.findByIdAndUpdate(
+      req.params.id, 
+      value, 
+      { new: true, runValidators: true }
+    );
+
+    if (!customer) return res.status(404).json({ error: 'Customer not found' });
+
+    res.json(customer);
+  } catch (err) {
+    console.error(err); 
+    res.status(500).json({ error: 'Error updating customer' });
+  }
 };

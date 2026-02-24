@@ -45,8 +45,12 @@ The API will be available at http://localhost:3000.
 
 Uploads the CSV file and initiates an asynchronous background job.
 
-```bash
-curl.exe -X POST -F "file=@./<YOUR_FILE>.csv" http://localhost:3000/api/imports
+```powershell
+$filePath = "./test.csv"
+$fileBytes = [System.IO.File]::ReadAllBytes($filePath)
+$fileEnc = [System.Text.Encoding]::GetEncoding('iso-8859-1').GetString($fileBytes)
+$boundary = [System.Guid]::NewGuid().ToString()
+$body = ("--$boundary", "Content-Disposition: form-data; name=`"file`"; filename=`"test.csv`"", "Content-Type: text/csv", "", $fileEnc, "--$boundary--") -join "`r`n"
 ```
 
 Response (202 Accepted):
@@ -63,16 +67,59 @@ Response (202 Accepted):
 
 Retrieves job metadata, including success/failure counts and specific error messages for rejected rows.
 
-```bash
-curl.exe http://localhost:3000/api/imports/<JOB_ID>
+```powershell
+Invoke-RestMethod -Method Get -Uri "http://localhost:3000/api/imports/<JOB_ID>"
 ```
 
-
 ### 3. Customer Management (CRUD)
-- List Customers (Paginated): `curl.exe "http://localhost:3000/api/customers?page=1&limit=10"`
-- Get Customer by ID: `curl.exe "http://localhost:3000/api/customers/<CUSTOMER_ID>`
-- Update Customer: `curl.exe -X PUT -H "Content-Type: application/json" -d "{\`"full_name\`":\`"<NEW_NAME>\`", \`"email\`":\`"<EMAIL>\`", \`"date_of_birth\`":\`"<YYYY-MM-DD>\`", \`"timezone\`":\`"<IANA_TIMEZONE>\`"}" http://localhost:3000/api/customers/<CUSTOMER_ID>` 
-- Delete Customer: `curl.exe -X DELETE http://localhost:3000/api/customers/<CUSTOMER_ID>`
+To test the endpoints below, you first need to retrieve the `_id` of the customers created during the import.
+
+#### **🔍 Quick ID Discovery**
+Run this command to see a clean table of all imported customers and their IDs:
+
+```powershell
+$response = Invoke-RestMethod -Method Get -Uri "http://localhost:3000/api/customers?limit=50"
+$response.data | Select-Object _id, full_name, email | Format-Table
+```
+
+**A. List Customers (with Pagination)**
+```powershell
+Invoke-RestMethod -Method Get -Uri "http://localhost:3000/api/customers?page=1&limit=10"
+```
+
+**B.Get Customer by ID**
+```powershell
+$id = <CUSTOMER_ID>
+
+Invoke-RestMethod -Method Get -Uri "http://localhost:3000/api/customers/$id"
+```
+
+**C. Update Entire Customer Data**
+```powershell
+$id = <CUSTOMER_ID>
+
+$body = @{ 
+    full_name = "<NAME>"; 
+    email = "<EMAIL>"; 
+    date_of_birth = "<DATE_OF_BIRTH>"; 
+    timezone = "<TIMEZONE>" 
+} | ConvertTo-Json
+
+Invoke-RestMethod -Method Put -Uri "http://localhost:3000/api/customers/$id" -Body $body -ContentType "application/json"
+```
+
+**D. Update Partial Customer Data**
+```powershell
+$body = @{ full_name = "<NEW_NAME>" } | ConvertTo-Json
+
+Invoke-RestMethod -Method Patch -Uri "http://localhost:3000/api/customers/<CUSTOMER_ID>" -Body $body -ContentType "application/json"
+```
+**Delete Customer Data** 
+```powershell
+$id = <CUSTOMER_ID>
+
+Invoke-RestMethod -Method Delete -Uri "http://localhost:3000/api/customers/$id"
+```
 
 ## Testing
 The project includes unit tests for business logic and integration tests for API endpoints using Jest and Supertest.
