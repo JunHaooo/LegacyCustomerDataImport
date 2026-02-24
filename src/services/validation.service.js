@@ -12,7 +12,7 @@ const isValidTimeZone = (value, helpers) => {
   }
 };
 
-// Define the Joi schema for validating customer data
+// Define the BASE Joi schema for validating customer data (source of truth)
 const customerSchema = Joi.object({
     full_name: Joi.string().trim().required().messages({
         'string.empty': 'Full name is required',
@@ -30,15 +30,28 @@ const customerSchema = Joi.object({
     }),
 });
 
-/**
- * Validates a single customer record
- * @param {Object} data - The row from the CSV
- * @returns {Object} { error, value }
- */
+// reate the PATCH schema (Derived from base, all fields optional)
+// .fork takes an array of fields and changes their rules
+const patchSchema = customerSchema.fork(
+  ['full_name', 'email', 'date_of_birth', 'timezone'], // List all fields that can be updated
+  (field) => field.optional() 
+).min(1); // .min(1) ensures the user sends at least ONE field to update
 
-// The validateCustomer function takes a data object (representing a customer record) and validates it against the defined Joi schema. It returns an object containing any validation errors and the validated value, which can be used to determine if the record is valid or if it should be rejected with specific error messages.
+/**
+ * Validates a full customer record (Import & PUT)
+ */
 const validateCustomer = (data) => {
   return customerSchema.validate(data, { abortEarly: false });
 };
 
-module.exports = { validateCustomer }; // Export the validation function for use in the customer controller
+/**
+ * Validates partial customer data (PATCH)
+ */
+const validatePartialCustomer = (data) => {
+  return patchSchema.validate(data, { abortEarly: false });
+};
+
+module.exports = { 
+  validateCustomer, // For validating full records (Import & PUT)
+  validatePartialCustomer // For validating partial updates (PATCH)
+};
