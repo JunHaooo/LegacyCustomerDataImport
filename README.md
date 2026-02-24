@@ -46,7 +46,7 @@ The API will be available at http://localhost:3000.
 Uploads the CSV file and initiates an asynchronous background job.
 
 ```bash
-curl -X POST -F "file=@./test.csv" http://localhost:3000/api/imports
+curl.exe -X POST -F "file=@./<YOUR_FILE>.csv" http://localhost:3000/api/imports
 ```
 
 Response (202 Accepted):
@@ -54,7 +54,7 @@ Response (202 Accepted):
 ```json
 {
   "message": "File uploaded and processing started",
-  "jobId": "65d8f..."
+  "jobId": "<GENERATED_JOB_ID>"
 }
 ```
 
@@ -64,14 +64,15 @@ Response (202 Accepted):
 Retrieves job metadata, including success/failure counts and specific error messages for rejected rows.
 
 ```bash
-curl http://localhost:3000/api/imports/65d8f...
+curl.exe http://localhost:3000/api/imports/<JOB_ID>
 ```
 
+
 ### 3. Customer Management (CRUD)
-- List Customers (Paginated): `GET /api/customers?page=1&limit=10`
-- Get Customer by ID: `GET /api/customers/:id`
-- Update Customer: `PUT /api/customers/:id` (Requires full validation)
-- Delete Customer: `DELETE /api/customers/:id`
+- List Customers (Paginated): `curl.exe "http://localhost:3000/api/customers?page=1&limit=10"`
+- Get Customer by ID: `curl.exe "http://localhost:3000/api/customers/<CUSTOMER_ID>`
+- Update Customer: `curl.exe -X PUT -H "Content-Type: application/json" -d "{\`"full_name\`":\`"<NEW_NAME>\`", \`"email\`":\`"<EMAIL>\`", \`"date_of_birth\`":\`"<YYYY-MM-DD>\`", \`"timezone\`":\`"<IANA_TIMEZONE>\`"}" http://localhost:3000/api/customers/<CUSTOMER_ID>` 
+- Delete Customer: `curl.exe -X DELETE http://localhost:3000/api/customers/<CUSTOMER_ID>`
 
 ## Testing
 The project includes unit tests for business logic and integration tests for API endpoints using Jest and Supertest.
