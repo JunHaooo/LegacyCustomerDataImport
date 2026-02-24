@@ -51,16 +51,17 @@ $fileBytes = [System.IO.File]::ReadAllBytes($filePath)
 $fileEnc = [System.Text.Encoding]::GetEncoding('iso-8859-1').GetString($fileBytes)
 $boundary = [System.Guid]::NewGuid().ToString()
 $body = ("--$boundary", "Content-Disposition: form-data; name=`"file`"; filename=`"test.csv`"", "Content-Type: text/csv", "", $fileEnc, "--$boundary--") -join "`r`n"
+Invoke-RestMethod -Method Post -Uri "http://localhost:3000/api/imports" -ContentType "multipart/form-data; boundary=$boundary" -Body $body
 ```
 
 Response (202 Accepted):
 
-```json
-{
-  "message": "File uploaded and processing started",
-  "jobId": "<GENERATED_JOB_ID>"
-}
 ```
+message                               jobId
+-------                               -----
+File uploaded and processing started  <GENERATED_JOB_ID>
+```
+
 
 ### 2. Check Import Status & Results
 `GET /api/imports/:id`
@@ -87,7 +88,7 @@ $response.data | Select-Object _id, full_name, email | Format-Table
 Invoke-RestMethod -Method Get -Uri "http://localhost:3000/api/customers?page=1&limit=10"
 ```
 
-**B.Get Customer by ID**
+**B. Get Customer by ID**
 ```powershell
 $id = <CUSTOMER_ID>
 
@@ -114,7 +115,7 @@ $body = @{ full_name = "<NEW_NAME>" } | ConvertTo-Json
 
 Invoke-RestMethod -Method Patch -Uri "http://localhost:3000/api/customers/<CUSTOMER_ID>" -Body $body -ContentType "application/json"
 ```
-**Delete Customer Data** 
+**E. Delete Customer Data** 
 ```powershell
 $id = <CUSTOMER_ID>
 
