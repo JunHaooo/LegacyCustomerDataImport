@@ -3,6 +3,7 @@
 const Customer = require('../models/Customer');
 const { validateCustomer } = require('../services/validation.service');
 
+// List customers with pagination
 exports.listCustomers = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
@@ -17,6 +18,7 @@ exports.listCustomers = async (req, res) => {
   }
 };
 
+// Get a single customer by ID
 exports.getCustomerById = async (req, res) => {
   try {
     const customer = await Customer.findById(req.params.id);
@@ -27,6 +29,7 @@ exports.getCustomerById = async (req, res) => {
   }
 };
 
+// Update a customer by ID
 exports.updateCustomer = async (req, res) => {
   try {
     const { error, value } = validateCustomer(req.body);
@@ -40,6 +43,7 @@ exports.updateCustomer = async (req, res) => {
   }
 };
 
+// Delete a customer by ID
 exports.deleteCustomer = async (req, res) => {
   try {
     const customer = await Customer.findByIdAndDelete(req.params.id);

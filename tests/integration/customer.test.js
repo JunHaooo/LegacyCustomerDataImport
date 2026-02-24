@@ -1,3 +1,5 @@
+// Integration tests for the Customer API endpoints using Supertest and Jest
+
 const request = require('supertest');
 const mongoose = require('mongoose');
 

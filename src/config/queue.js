@@ -8,9 +8,9 @@ const connection = {
     port: process.env.REDIS_PORT || 6379, // Default to 6379 if REDIS_PORT is not set
 };
 
-const importQueue = new Queue('importQueue', { connection });
+const importQueue = new Queue('importQueue', { connection }); 
 
-logger.info('BullMQ Queue initialized with connection');
+logger.info('BullMQ Queue initialized with connection'); // Export the queue and connection for use in workers and other parts of the application
 
 module.exports = {
     importQueue,

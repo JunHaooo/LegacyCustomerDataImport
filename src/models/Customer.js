@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 
+// Define the Customer schema with appropriate fields and validation
 const customerSchema = new mongoose.Schema({
     full_name: {
         type: String,

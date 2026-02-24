@@ -1,14 +1,15 @@
 // This worker processes CSV import jobs from the 'importQueue'. It reads the uploaded CSV file, validates each record, stores valid records in the database, and updates the ImportJob document with the results. It also handles errors gracefully and logs the outcomes for monitoring and debugging purposes.
 
-const { Worker } = require('bullmq');
-const fs = require('fs');
-const { parse } = require('csv-parse');
-const { connection } = require('../config/queue');
-const Customer = require('../models/Customer');
-const ImportJob = require('../models/ImportJob');
-const { validateCustomer } = require('../services/validation.service');
-const logger = require('../utils/logger');
+const { Worker } = require('bullmq'); 
+const fs = require('fs'); 
+const { parse } = require('csv-parse'); 
+const { connection } = require('../config/queue'); 
+const Customer = require('../models/Customer'); 
+const ImportJob = require('../models/ImportJob'); 
+const { validateCustomer } = require('../services/validation.service'); 
+const logger = require('../utils/logger'); 
 
+// Create a new worker that listens to the 'importQueue' and processes jobs asynchronously
 const worker = new Worker('importQueue', async (job) => {
   const { filePath, jobId } = job.data;
   const importJob = await ImportJob.findById(jobId);
@@ -17,8 +18,9 @@ const worker = new Worker('importQueue', async (job) => {
     importJob.status = 'processing';
     importJob.startedAt = new Date();
     await importJob.save();
-
-    const parser = fs.createReadStream(filePath).pipe(parse({
+    
+    // Stream the CSV file and process each record asynchronously to handle large files without blocking the event loop
+    const parser = fs.createReadStream(filePath).pipe(parse({ 
       columns: true,
       skip_empty_lines: true,
       trim: true
@@ -27,7 +29,7 @@ const worker = new Worker('importQueue', async (job) => {
     let rowCount = 0;
     for await (const record of parser) {
       rowCount++;
-      const { error, value } = validateCustomer(record);
+      const { error, value } = validateCustomer(record); // Validate the customer record and capture any validation errors
 
       if (error) {
         importJob.failedCount++;
@@ -38,7 +40,7 @@ const worker = new Worker('importQueue', async (job) => {
         });
       } else {
         try {
-          await Customer.create(value); // Fulfills "Store all valid records" [cite: 28]
+          await Customer.create(value); // Fulfills "Store all valid records"
           importJob.successCount++;
         } catch (dbError) {
           importJob.failedCount++;
@@ -51,6 +53,7 @@ const worker = new Worker('importQueue', async (job) => {
       }
     }
 
+    // After processing all records, update the ImportJob document with the final status and counts
     importJob.status = 'completed';
     importJob.totalRecords = rowCount;
     importJob.completedAt = new Date();
