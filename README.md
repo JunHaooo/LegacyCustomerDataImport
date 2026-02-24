@@ -109,9 +109,10 @@ Note: Tests utilize Jest mocks for BullMQ/Redis to ensure isolated, stable execu
 ## 🔍 Assumptions & Limitations
 - **CSV Format:** Assumes the first row contains headers: `full_name,email,date_of_birth,timezone`.
 - **Duplicate Policy:** If an email already exists in the database, the row is rejected and logged in the `rejectedRecords` array with a detailed error message.
-- **Timezone Validation:** Assumes valid IANA identifiers.
+- **Timezone Validation:** Enforces strict IANA timezone validation. Records with non-compliant identifiers will be rejected to ensure downstream data consistency
 
 ## 🚀 Future Improvements
+- **Multi-file Batch Uploads:** Expand the /api/imports endpoint to support upload.array('files'), allowing users to submit multiple CSVs in a single request for parallel background processing.
 - **Batch Database Writes:** Replace individual `.save()` calls with `insertMany()` batches (e.g., every 100 rows) to further optimize database I/O.
 - **Real-time Updates:** Integrate WebSockets (Socket.io) to push import progress updates to a frontend dashboard in real-time.
 - **Authentication:** Implement JWT-based authentication for the CRUD and Import endpoints for production-level security.
